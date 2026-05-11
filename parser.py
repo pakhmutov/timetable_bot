@@ -73,17 +73,17 @@ def parse_html(html: str) -> dict:
             # Проверяем — это заголовок дня или строка "занятий нет"
             title_td = element.find("td", class_="title")
             if title_td:
-                day_div = title_td.find("div", recursive=False)
-                if not day_div:
-                    # Берём последний div
-                    divs = title_td.find_all("div")
-                    day_div = divs[-1] if divs else None
-
+                # Пропускаем div.today (метка "Сегодня"), берём первый без этого класса
+                day_div = next(
+                    (d for d in title_td.find_all("div", recursive=False)
+                     if "today" not in (d.get("class") or [])),
+                    None,
+                )
                 if day_div:
-                    # Убираем вложенный div "Сегодня" если есть
-                    today_div = day_div.find("div", class_="today")
-                    if today_div:
-                        today_div.decompose()
+                    # На случай если .today вложен внутрь заголовка
+                    nested = day_div.find("div", class_="today")
+                    if nested:
+                        nested.decompose()
                     current_day = " ".join(day_div.get_text().split())
                     result[current_day] = []
 
