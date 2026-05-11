@@ -1,8 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 import json
 import os
+
+NVSK_TZ = timezone(timedelta(hours=5))
+
+
+def now_nvsk() -> datetime:
+    return datetime.now(NVSK_TZ)
 
 BASE_URL = "https://tm.nvsu.ru/tm/index.php/timetable/show_timetable/group"
 CACHE_FILE = "timetable_cache.json"
@@ -176,7 +182,7 @@ def format_day(day_name: str, lessons: list) -> str:
 def get_week(group_id: str, date: datetime = None) -> dict:
     """Возвращает расписание на неделю как словарь {день: [пары]}"""
     if date is None:
-        date = datetime.today()
+        date = now_nvsk()
 
     date_str = date.strftime("%d_%m_%Y")
     cache_key = f"{group_id}_{date_str}"
@@ -204,7 +210,7 @@ def get_week(group_id: str, date: datetime = None) -> dict:
 def get_day_text(group_id: str, date: datetime = None) -> str:
     """Возвращает готовый текст для одного дня"""
     if date is None:
-        date = datetime.today()
+        date = now_nvsk()
 
     week_data, from_cache = get_week(group_id, date)
 
@@ -245,7 +251,7 @@ def get_day_text(group_id: str, date: datetime = None) -> str:
 def get_week_text(group_id: str, date: datetime = None) -> str:
     """Возвращает расписание на всю неделю"""
     if date is None:
-        date = datetime.today()
+        date = now_nvsk()
 
     week_data, from_cache = get_week(group_id, date)
 

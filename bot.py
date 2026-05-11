@@ -1,6 +1,6 @@
 import os
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -11,7 +11,7 @@ from telegram.ext import (
     ContextTypes,
 )
 
-from parser import get_day_text, get_week_text
+from parser import get_day_text, get_week_text, now_nvsk
 
 load_dotenv()
 
@@ -47,14 +47,14 @@ async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def cmd_today(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    text = get_day_text(GROUP_ID, datetime.today())
+    text = get_day_text(GROUP_ID, now_nvsk())
     await update.message.reply_text(
         text, parse_mode="Markdown", reply_markup=main_keyboard()
     )
 
 
 async def cmd_week(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    text = get_week_text(GROUP_ID, datetime.today())
+    text = get_week_text(GROUP_ID, now_nvsk())
     await update.message.reply_text(
         text, parse_mode="Markdown", reply_markup=main_keyboard()
     )
@@ -68,10 +68,10 @@ async def button(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     if data.startswith("day_"):
         delta = int(data.split("_")[1])
-        date = datetime.today() + timedelta(days=delta)
+        date = now_nvsk() + timedelta(days=delta)
         text = get_day_text(GROUP_ID, date)
     elif data == "week":
-        text = get_week_text(GROUP_ID, datetime.today())
+        text = get_week_text(GROUP_ID, now_nvsk())
     else:
         return
 
